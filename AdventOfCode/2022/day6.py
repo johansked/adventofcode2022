@@ -25,23 +25,6 @@ def check_buffer_for_start(buffer, sequence_size):
     return i + 1
 
 if __name__ == '__main__':
-    #--- Tests
-    tests = [
-        {"input": "bvwbjplbgvbhsrlpgdmjqwftvncz", "expected": 5, "seqSize": 4},
-        {"input": "nppdvjthqldpwncqszvftbrmjlhg", "expected": 6, "seqSize": 4},
-        {"input": "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", "expected": 10, "seqSize": 4},
-        {"input": "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", "expected": 11, "seqSize": 4},
-        {"input": "mjqjpqmgbljsphdztnvjfqwrcgsmlb", "expected": 19, "seqSize": 14},
-        {"input": "bvwbjplbgvbhsrlpgdmjqwftvncz", "expected": 23, "seqSize": 14},
-        {"input": "nppdvjthqldpwncqszvftbrmjlhg", "expected": 23, "seqSize": 14},
-        {"input": "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", "expected": 29, "seqSize": 14},
-        {"input": "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", "expected": 26, "seqSize": 14},
-    ]
-    for test in tests:
-        start_position = check_buffer_for_start(test["input"], test["seqSize"])
-        assert start_position == test["expected"], f"Expected seq start to be {test['expected']}, got {start_position}"
-
-    #--- Tasks
     with open("data/inputd6.txt") as f:
         content = f.read().strip()
 

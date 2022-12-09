@@ -37,12 +37,12 @@
 # After simulating the rope, you can count up all of the positions the tail visited at least once.
 # Task: How many positions does the tail of the rope visit at least once?
 
-def parse_input(inp):
+def _parse_input(inp):
     return [
         (line.split(" ")[0], int(line.split(" ")[1])) 
     for line in inp.split("\n") ]
 
-def walk(knot_positions, steps, direction, tail_visited_points, step_length = 1):
+def _walk(knot_positions, steps, direction, tail_visited_points, step_length = 1):
     for step in range(steps):
         # Move head in dir one step
         if direction == "R":
@@ -96,37 +96,13 @@ def find_unique_visited_points(instructions, n_knots = 10):
 
     for instruction in instructions:
         direction, steps = instruction
-        walk(knot_positions, steps, direction, visited_points)
+        _walk(knot_positions, steps, direction, visited_points)
 
     return len(visited_points)
 
 if __name__ == "__main__":
-    #--- Tests
-    tests = [
-        {
-            "input": parse_input("R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2"),
-            "expected": 13,
-            "n_knots": 2
-        },
-        {
-            "input": parse_input("R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2"),
-            "expected": 1,
-            "n_knots": 10
-        },
-        {
-            "input": parse_input("R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20"),
-            "expected": 36,
-            "n_knots": 10
-        }
-    ]
-
-    for test in tests:
-        n_visited_points = find_unique_visited_points(test["input"], test["n_knots"])
-        assert n_visited_points == test["expected"], f"Expected test input to have visited {test['expected']}, found {n_visited_points}"
-
-    #--- Tasks
     with open("data/inputd9.txt") as f:
-        inp = parse_input(f.read().strip())
+        inp = _parse_input(f.read().strip())
 
     points_task_1 = find_unique_visited_points(inp, 2)
     points_task_2 = find_unique_visited_points(inp, 10)

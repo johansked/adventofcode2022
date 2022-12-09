@@ -1,103 +1,89 @@
-# Filesystem
-# Tree of files and directories with sub directories
-# Root /
-# $ = command
-# ls => dir a (means there is a directory a in that dir) 123 abc (means a file in that dir)
-# => find the total size of each dir
-#       Sum of all files and sub dir with files
-# Task: Find all dirs with total size <= 100000 and calculate sum of all those
+# Tree house
+# 1. Enough tree to cover the house?
+#       Count the number of trees visible from outside of the grid looking in (row, column)
+# Input:
+# 30373
+# 25512
+# 65332
+# 33549
+# 35390
+# Each tree is represented as a single digit whose value is its height, where 0 is the shortest and 9 is the tallest.
+# A tree is visible if all of the other trees between it and an edge of the grid are shorter than it.
+# Task 1: how many trees are visible from outside the grid?
+# Task 2: To measure the viewing distance from a given tree, look up, down, left, and right from that tree; stop if you reach an edge or at the first tree that is the same height or taller than the tree under consideration. What is the highest scenic score possible for any tree?
+#       A tree's scenic score is found by multiplying together its viewing distance in each of the four directions. For this tree, this is 4 (found by multiplying 1 * 1 * 2 * 2).
 
-import re
+import numpy as np
 
-SIZE_TH = 100000
-TOTAL_DISK_SPACE = 70000000
-UPDATE_SIZE = 30000000
+def _count_trees_shorter(view):
+    n_trees = 0
+    for i in range(0, len(view)):
+        if view[i]:
+            n_trees += 1
+            break
+        else:
+            n_trees += 1
 
-cd_command = re.compile("\$ cd (.+)")
-cd_back = ".."
-ls_command = "$ ls"
-dir_format = re.compile("dir (.+)")
-file_format = re.compile("(\d+) (.+)")
+    return n_trees
 
-def parse_directory(i, content):
-    try:
-        directory_content = {
-            "size": 0,
-            "directories": {},
-            "files": {}
-        }
-        while i < len(content):
-            is_file = file_format.search(content[i])
-            if is_file:
-                size = int(is_file.group(1))
-                directory_content["files"][is_file.group(2)] = size
-                directory_content["size"] += size
+def count_non_visible_trees(inp):
+    trees = np.array(inp).astype("int")
+    trees_t = trees.transpose()
 
-            is_cd = cd_command.search(content[i])
-            if is_cd:
-                directory = is_cd.group(1)
-                if directory == cd_back:
-                    break
-                else:
-                    i, sub_dir = parse_directory(i + 1, content)
-                    directory_content["directories"][directory] = sub_dir
-                    directory_content["size"] += sub_dir["size"]
+    nrows, ncols = trees.shape
 
-            i+=1
+    n_visible = 0
+    for i in range(nrows):
+        for j in range(ncols):
+            current_value = trees[i][j]
 
-        return i, directory_content
-    except Exception as e:
-        raise e
+            current_row_higher = (trees[i] - current_value) >= 0
+            current_column_higher = (trees_t[j] - current_value) >= 0
 
-def task1(structure, size_th, total_size_above_th):
-    if "directories" in structure:
-        for directory in structure["directories"]:
-            total_size_above_th = task1(structure["directories"][directory], size_th, total_size_above_th)
-    
-    if structure["size"] <= size_th:
-        total_size_above_th += structure["size"]
+            left_higher = current_row_higher[:j].sum() > 0
+            right_higher = current_row_higher[j+1:].sum() > 0
 
-    return total_size_above_th
+            top_higher = current_column_higher[:i].sum() > 0
+            bottom_higher = current_column_higher[i+1:].sum() > 0
 
-def task2(structure, size_th, smallest_above_th):
-    if "directories" in structure:
-        for directory in structure["directories"]:
-            smallest_above_th = task2(structure["directories"][directory], size_th, smallest_above_th)
+            if not left_higher or not right_higher or not top_higher or not bottom_higher:
+                n_visible += 1
 
-    if structure["size"] <= smallest_above_th and structure["size"] >= size_th:
-        smallest_above_th = structure["size"]
+    return n_visible
 
-    return smallest_above_th
 
-def run(day_input):
-    inp = day_input.strip().split("\n")
+def max_scenic_score(inp):
+    trees = np.array(inp).astype("int")
+    trees_t = trees.transpose()
 
-    ind, directory_structure = parse_directory(0, inp)
+    nrows, ncols = trees.shape
 
-    total_size = directory_structure["size"]
-    task2_required_additional = UPDATE_SIZE - (TOTAL_DISK_SPACE - total_size)
+    max_scenic_score = 0
+    for i in range(nrows):
+        for j in range(ncols):
+            current_value = trees[i][j]
 
-    task1_res = task1(directory_structure, SIZE_TH, 0)
-    task2_res = task2(directory_structure, task2_required_additional, total_size)
+            current_row_higher = (trees[i] - current_value) >= 0
+            current_column_higher = (trees_t[j] - current_value) >= 0
 
-    return task1_res, task2_res
+            n_trees_left = _count_trees_shorter(np.flip(current_row_higher[:j]))
+            n_trees_right = _count_trees_shorter(current_row_higher[j+1:])
+            n_trees_top = _count_trees_shorter(np.flip(current_column_higher[:i]))
+            n_trees_bottom = _count_trees_shorter(current_column_higher[i+1:])
 
-if __name__ == '__main__':
-    #--- Tests
-    test_input = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k"
-    test_expected_task_1 = 95437
-    test_expected_task_2 = 24933642
+            current_scenic_score = n_trees_left*n_trees_right*n_trees_bottom*n_trees_top
 
-    test_total_size_below_th, test_smallest_above_th = run(test_input)
+            if current_scenic_score > max_scenic_score:
+                max_scenic_score = current_scenic_score
 
-    assert test_total_size_below_th == test_expected_task_1, f"Expected task 1 to return size {test_expected_task_1}, got {test_total_size_below_th}"
-    assert test_smallest_above_th == test_expected_task_2, f"Expected task 2 to return size {test_expected_task_2}, got {test_smallest_above_th}"
+    return max_scenic_score
 
-    #--- Tasks
-    with open("data/inputd7.txt") as f:
-        content = f.read()
+if __name__ == "__main__":
+    with open("data/inputd8.txt") as f:
+        content = [list(l) for l in f.read().strip().split("\n")]
 
-    task1_res, task2_res = run(content)
+    n_visible = count_non_visible_trees(content)
+    print(f"Task 1: Number of visible trees {n_visible}")
 
-    print(f"Task 1: Total size of dirs below size th is {task1_res}")
-    print(f"Task 2: Size of dir the meets the criteria {task2_res}")
+    max_scenic = max_scenic_score(content)
+    print(f"Task 2: Max scenic view is {max_scenic}")

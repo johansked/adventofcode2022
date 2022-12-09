@@ -45,17 +45,6 @@ def get_sum_priority_of_badges(day_input):
     return total_priority
     
 if __name__ == "__main__":
-    #--- Tests
-    test_input = "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\nPmmdzqPrVvPwwTWBwg\nwMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\nttgJtRGJQctTZtZT\nCrZsJsPPZsGzwwsLwLmpwMDw".split("\n")
-    task1_expected = 157
-    task2_expected = 70
-
-    task1_res = get_sum_priorities_for_items_in_both(test_input)
-    task2_res = get_sum_priority_of_badges(test_input)
-    assert task1_res == task1_expected
-    assert task2_res == task2_expected
-
-    #--- Tasks
     with open("data/inputd3.txt") as f:
         content = f.read().strip().split("\n")
 
