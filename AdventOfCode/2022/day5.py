@@ -20,7 +20,7 @@ import re
 
 step_pattern = re.compile("move (\d+) from (\d+) to (\d+)")
 
-def parser(content):
+def _parser(content):
     creates_info = []
     steps_info = []
     first_block = True
@@ -61,7 +61,7 @@ def parser(content):
 
     return piles, steps_info
 
-def do_movement(pile_info, steps_info, keep_order_when_moved):
+def _do_movement(pile_info, steps_info, keep_order_when_moved):
     for step in steps_info:
         n_creates, from_pile, to_pile = step
 
@@ -82,9 +82,9 @@ def run(path, keep_order_when_moved, task_id):
     with open(path) as f:
         content = f.read().strip().split("\n")
 
-    pile_info, steps_info = parser(content)
+    pile_info, steps_info = _parser(content)
 
-    pile_info = do_movement(pile_info, steps_info, keep_order_when_moved)
+    pile_info = _do_movement(pile_info, steps_info, keep_order_when_moved)
 
     print(f"{task_id}: The current top creates are {''.join([p[-1] for p in pile_info])}")
 
