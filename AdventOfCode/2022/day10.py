@@ -58,13 +58,13 @@ def sum_signal_strength(operations, first_cycle_to_calculate = FIRST_CYCLE_TO_CA
     for operation in operation_list:
         n_cpu_cycles_to_complete, to_add = _parse_operation(operation)
 
-        for i in range(n_cpu_cycles_to_complete):
-            current_cycle += 1
-            if i == (n_cpu_cycles_to_complete - 1):
-                X += to_add
-
+        for i in range(n_cpu_cycles_to_complete):       
             if (current_cycle >= first_cycle_to_calculate) and ((current_cycle - first_cycle_to_calculate) % calculation_interval == 0):
                 sum_signal_strength += X * current_cycle
+
+            current_cycle += 1
+
+        X += to_add
 
     return sum_signal_strength
 
@@ -84,13 +84,12 @@ def generate_crt_drawing(operations):
             curr_row_pixel = crt_draw_position % CRT_WIDTH
             if curr_row_pixel in sprite_position:
                 crt_screen[crt_draw_position] = "#"
-            
-            if i == (n_cpu_cycles_to_complete - 1):
-                X += to_add
-                sprite_position = np.array(range(X-SPRITE_WIDTH,X)) + 2
-
+        
             current_cycle += 1
             crt_draw_position += 1
+
+        X += to_add
+        sprite_position = np.array(range(X-SPRITE_WIDTH,X)) + (SPRITE_WIDTH - 1)
 
     return crt_screen.reshape(CRT_HEIGHT, CRT_WIDTH) 
 
